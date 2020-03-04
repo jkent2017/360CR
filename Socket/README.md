@@ -1,0 +1,1 @@
+Second attempt with sockets (Arduino-Python).
