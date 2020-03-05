@@ -10,8 +10,8 @@
 
 // Network stuff
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0xC0, 0xF3 };
-byte ip[] = { 192, 168, 0, 160 };
-byte gateway[] = { 192, 168, 0, 1 };
+byte ip[] = { 192, 168, 1, 57 };
+byte gateway[] = { 192, 168, 1, 1 };
 int port = 5050;
 
 WifiATRInterface wifiInterface(mac, ip, port, gateway);
@@ -161,6 +161,7 @@ void relayControl(byte digital)
 
 void checkRxTimeout()
 {
+  Serial.println("Checking RxTimeout-2");
 	if (rxTimeoutCounter >= rxTimeoutTime) { allStop(); }
 	else { stInterface.setEStop(false); }
 }
