@@ -1,6 +1,8 @@
+#include <SoftwareSerial.h>
 #include <Sabertooth.h>
 
-Sabertooth ST(128);
+SoftwareSerial SabertoothSerial(NOT_A_PIN, 18);
+Sabertooth ST(128, SabertoothSerial);
 void vroom();
 void killRobot();
 void printPacket();
@@ -14,13 +16,14 @@ struct {
   byte sync3 = 0;
   int8_t driveChar = 0;
   int8_t turnChar = 0;
-  byte digital1 = 0;
+  bool digital1 = 0;
   byte digital2 = 0;
 } packet;
 
 void setup() {
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
+  SabertoothSerial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
@@ -67,9 +70,12 @@ void loop() {
         }
       }
     }
-        printPacket();
+    printPacket();
     if (packet.sync1 == 1 && packet.sync2 == 2 && packet.sync3 == 3) {
-      vroom();
+      if (packet.digital1)
+        killRobot();
+      else
+        vroom();
       printPacket();
     }
   }
@@ -100,6 +106,4 @@ void vroom() {
 void killRobot() {
   ST.motor(1, 0);    // Stop.
   ST.motor(2, 0);    // Stop.
-  while (1)
-    Serial.println("Mistakes have been made");
 }

@@ -14,7 +14,7 @@ sync2 = 2
 sync3 = 3
 driveChar = 0
 turnChar = 0
-digital1 = 4
+digital1 = 1
 digital2 = 5
 joysticks = []
 buttonString = "Temp"
@@ -56,9 +56,11 @@ while not gameExit:
         pass # D-Right
       elif event.button == 4:
         buttonString = "Start"
+        digital1 = 0
         pass # Start
       elif event.button == 5:
         buttonString = "Select"
+        digital1 = 1
         pass # Select
       elif event.button == 6:
         buttonString = "Left Stick"
@@ -75,6 +77,7 @@ while not gameExit:
       elif event.button == 10:
         gameExit = True
         buttonString = "Logitech"
+        digital1 = 1
         pass # Logitech
       elif event.button == 11:
         buttonString = "A"
