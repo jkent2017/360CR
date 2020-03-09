@@ -2,7 +2,7 @@ import pygame
 import time
 import serial
 
-serialPort = '/dev/cu.usbmodem142201'
+serialPort = '/dev/cu.usbmodem143101'
 ser = serial.Serial(serialPort, 9600)
 
 pygame.init()
@@ -39,7 +39,6 @@ while not gameExit:
     turnChar = int(127 * turnChar)
 
   for event in pygame.event.get():
-    # print(event) # Debugging
     if event.type == pygame.QUIT:
       gameExit = True
     elif event.type == pygame.JOYBUTTONDOWN:
@@ -91,6 +90,7 @@ while not gameExit:
         pass # Y
       print("Button Pressed: " + buttonString)
   ser.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
+  print(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
   time.sleep(0.05)
 ser.close()
 pygame.quit()
