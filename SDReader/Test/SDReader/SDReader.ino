@@ -33,7 +33,6 @@ void setup() {
 
 void loop() {
   if (Serial.available()) {
-    Serial.println("Check");
     for (int ii = 0; ii < 7; ii++) {
       for (int jj = 0; jj < 5; jj++) {
         c[jj] = Serial.read();
