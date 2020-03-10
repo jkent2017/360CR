@@ -35,6 +35,7 @@ void loop() {
   if (Serial.available()) {
     for (int ii = 0; ii < 7; ii++) {
       for (int jj = 0; jj < 5; jj++) {
+        delay(1);
         c[jj] = Serial.read();
         if (c[jj] == ' ' || c[jj] == '\n') {
           //Store Value
