@@ -1,8 +1,17 @@
 import pygame
 import time
 import serial
+import os
+import re
 
-serialPort = '/dev/cu.usbmodem143101'
+rootdir = "/dev/"
+regex = re.compile('cu.usbmodem*')
+
+for root, dirs, files in os.walk(rootdir):
+  for file in files:
+    if regex.match(file):
+      serialPort = rootdir + file
+
 ser = serial.Serial(serialPort, 9600)
 
 pygame.init()
@@ -19,6 +28,12 @@ digital2 = 5
 maxSpeed = 5.0
 joysticks = []
 writing = False
+sleepTimer = 0.05
+pathFile = open("Path.txt")
+pathFile.close()
+reversePathFile = open("Reverse.txt")
+reversePathFile.close()
+
 
 for i in range(0, pygame.joystick.get_count()):
   joysticks.append(pygame.joystick.Joystick(i))
@@ -27,7 +42,7 @@ for i in range(0, pygame.joystick.get_count()):
   print(joysticks[-1].get_name())
 
 def checkButtons():
-  global maxSpeed, gameExit, digital1, digital2, writing, f, reversePathFile
+  global maxSpeed, gameExit, digital1, digital2, writing, pathFile, reversePathFile
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       gameExit = True
@@ -65,12 +80,12 @@ def checkButtons():
         print("Logitech")
       elif event.button == 11:
         writing = True
-        f = open("Path.txt", "w")
+        pathFile = open("Path.txt", "w")
         reversePathFile = open("Reverse.txt", "w")
         print("A")
       elif event.button == 12:
         writing = False
-        f.close()
+        pathFile.close()
         reversePathFile.close()
         print("B")
       elif event.button == 13:
@@ -95,26 +110,26 @@ def readJoysticks():
     turnChar = int(127 * maxSpeed/5.0 * turnChar)
 
 def readFile():
-  global f, path
+  global pathFile, path, sleepTimer
   print("Reading File")
-  f = open("Path.txt", "r")
-  path = f.readlines()
+  pathFile = open("Path.txt", "r")
+  path = pathFile.readlines()
   for x in path:
     print(x)
     ser.write(x)
-    time.sleep(0.05)
-  f.close()
+    time.sleep(sleepTimer)
+  pathFile.close()
   print("Done Reading")
 
 def reverseReverse():
-  global reversePathFile, reversePath
+  global reversePathFile, reversePath, sleepTimer
   print("Reading File")
   reversePathFile = open("Reverse.txt", "r")
   reversePath = reversePathFile.readlines()
   for x in reversed(reversePath):
     print(x)
     ser.write(x)
-    time.sleep(0.05)
+    time.sleep(sleepTimer)
   reversePathFile.close()
   print("Done Reading")
 
@@ -129,11 +144,11 @@ while not gameExit:
 
   ser.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
   if writing:
-    f.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
+    pathFile.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
     reversePathFile.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(-1*driveChar) + " " + str(-1*turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
 
-  time.sleep(0.05)
-f.close()
+  time.sleep(sleepTimer)
+pathFile.close()
 reversePathFile.close()
 ser.close()
 pygame.quit()
