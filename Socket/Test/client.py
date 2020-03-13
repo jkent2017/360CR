@@ -1,5 +1,12 @@
 import socket	#for sockets
 import sys	#for exit
+import miniupnpc
+
+u = miniupnpc.UPnP()
+u.discoverdelay = 200
+u.discover()
+u.selectigd()
+print('external ip address: {}'.format(u.externalipaddress()))
 
 # create dgram udp socket
 try:
@@ -8,7 +15,7 @@ except socket.error:
 	print 'Failed to create socket'
 	sys.exit()
 
-host = '107.145.57.26'; # Public IP of Sender
+host = u.externalipaddress() # '107.145.57.26'; # Public IP of Sender
 port = 8888;
 
 while(1) :
