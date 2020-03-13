@@ -1,16 +1,13 @@
-import socket
+from socket import *
+import time
 
-HOST = '192.168.1.56'
-PORT = 8888
+address = ('192.168.1.177', 8888)
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    s.listen()
-    conn, addr = s.accept()
-    with conn:
-        print('Connected by', addr)
-        while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            conn.sendall(data)
+client_socket = socket(AF_INET, SOCK_DGRAM) #Set up the Socket
+client_socket.settimeout(1) #Only wait 1 second for a response
+
+while True:
+  data = "Test"
+  client_socket.sendto( data, address) #Send the data request
+  print("Sent to Arduino")
+  time.sleep(0.5)

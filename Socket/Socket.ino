@@ -4,7 +4,7 @@
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0xC0, 0xF3 };
 byte ip[] = {192, 168, 1, 57};
 byte server[] = { 192, 168, 1, 1 };
-int port = 8888;
+int port = 8090;
 
 EthernetClient client;
 

@@ -1,7 +1,7 @@
 import socket
 import sys
 
-HOST = ''	# Symbolic name meaning all available interfaces
+HOST = '192.168.1.13'	# Private IP of receiver
 PORT = 8888	# Arbitrary non-privileged port
 
 # Datagram (udp) socket

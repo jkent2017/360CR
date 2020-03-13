@@ -70,7 +70,6 @@ void loop() {
         }
       }
     }
-    printPacket();
     if (packet.sync1 == 1 && packet.sync2 == 2 && packet.sync3 == 3) {
       if (packet.digital1)
         killRobot();
@@ -98,7 +97,7 @@ void printPacket() {
 }
 
 void vroom() {
-  Serial.println("vroom");
+//  Serial.println("vroom");
   ST.drive(packet.driveChar);
   ST.turn(packet.turnChar);
 }
