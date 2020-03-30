@@ -26,7 +26,7 @@ class Comms():
 
   def __init__(self):
     #self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    ports = [(port, desc) for port, desc, add in list(serial.tools.list_ports.comports())]
+    ports = [port for port, desc, add in list(serial.tools.list_ports.comports())]
     if len(ports) > 0:
       self.ser = Serial(ports[0], 9600)
 
