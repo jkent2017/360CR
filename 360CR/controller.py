@@ -2,14 +2,13 @@ import pygame
 
 from time import sleep
 
+import serial.tools.list_ports
 from gui import GUI, redraw, process_click, process_hover
 from common import AXIS_LS_H, AXIS_LS_V, AXIS_LT, AXIS_RS_H, AXIS_RS_V, AXIS_RT
 
 import socket
-
-import serial, os, re
-
-from serial import Serial, tools.list_ports.comports
+from serial import Serial
+import os, re
 
 class Comms():
   sock = None
@@ -22,13 +21,14 @@ class Comms():
   sync1 = 0
   sync2 = 0
   sync3 = 0
-  digital1 = 0
+  digital1 = 1
   digital2 = 0
 
   def __init__(self):
     #self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    port = ''
-    self.ser = Serial(port, 9600)
+    ports = [(port, desc) for port, desc, add in list(serial.tools.list_ports.comports())]
+    if len(ports) > 0:
+      self.ser = Serial(ports[0], 9600)
 
   def pack_message(self, drive, turn):
     #data = bytearray([0, 0, 0, turn, drive, 0])
@@ -40,7 +40,8 @@ class Comms():
     turn  = int(128 * turn) + 128
 
     #self.sock.sendto(self.pack_message(id, drive, turn), (self.UDP_IP, self.UDP_PORT))
-    self.ser.write(pack_message(drive, turn))
+    if self.ser:
+      self.ser.write(pack_message(drive, turn))
 
 class Application():
   controller = None
@@ -125,11 +126,12 @@ class Application():
 
     process_hover(pygame.mouse.get_pos())
 
-    self.get_left_stick_pos([self.controller.get_axis(AXIS_LS_H), self.controller.get_axis(AXIS_LS_V)])
-    self.get_right_stick_pos([self.controller.get_axis(AXIS_RS_H), self.controller.get_axis(AXIS_RS_V)])
+    if self.controller:
+      self.get_left_stick_pos([self.controller.get_axis(AXIS_LS_H), self.controller.get_axis(AXIS_LS_V)])
+      self.get_right_stick_pos([self.controller.get_axis(AXIS_RS_H), self.controller.get_axis(AXIS_RS_V)])
 
-    self.get_left_trigger_pos(self.controller.get_axis(AXIS_LT))
-    self.get_right_trigger_pos(self.controller.get_axis(AXIS_RT))
+      self.get_left_trigger_pos(self.controller.get_axis(AXIS_LT))
+      self.get_right_trigger_pos(self.controller.get_axis(AXIS_RT))
 
   def update_graphics(self):
     # self.gui.panel_mapping.joystick_left.set_joystick_pos(self.last_LS_pos)
