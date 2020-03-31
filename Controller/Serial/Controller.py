@@ -1,13 +1,18 @@
 import pygame
 import time
-import socket
+import serial
+import os
+import re
 
-host = '192.168.1.177' # IP of Arduino
-port = 8888
+rootdir = "/dev/"
+regex = re.compile('cu.usbmodem*')
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host,port))
+for root, dirs, files in os.walk(rootdir):
+  for file in files:
+    if regex.match(file):
+      serialPort = rootdir + file
 
+ser = serial.Serial(serialPort, 9600)
 
 pygame.init()
 
@@ -111,7 +116,7 @@ def readFile():
   path = pathFile.readlines()
   for x in path:
     print(x)
-    s.send(str.encode(x))
+    ser.write(x)
     time.sleep(sleepTimer)
   pathFile.close()
   print("Done Reading")
@@ -123,7 +128,7 @@ def reverseReverse():
   reversePath = reversePathFile.readlines()
   for x in reversed(reversePath):
     print(x)
-    s.send(str.encode(x))
+    ser.write(x)
     time.sleep(sleepTimer)
   reversePathFile.close()
   print("Done Reading")
@@ -134,17 +139,17 @@ while not gameExit:
   readJoysticks()
   checkButtons()
 
-  data = f'{sync1} {sync2} {sync3} {drive} {turn} {digital1} {digital2}\n' # Formatted String
-  s.send(str.encode(data))
-  print(data)
+  print(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2))
   print("Max Speed: " + str(maxSpeed) + "\n")
 
+  ser.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
   if writing:
-    pathFile.write(data)
-    reversePathFile.write(data)
+    pathFile.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(driveChar) + " " + str(turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
+    reversePathFile.write(str(sync1) + " " + str(sync2) + " " + str(sync3) + " " + str(-1*driveChar) + " " + str(-1*turnChar) + " " + str(digital1) + " " + str(digital2) + "\n")
 
   time.sleep(sleepTimer)
 pathFile.close()
 reversePathFile.close()
+ser.close()
 pygame.quit()
 quit()

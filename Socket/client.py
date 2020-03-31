@@ -24,5 +24,5 @@ print("Ready")
 while(1) :
 	msg = input() # Wait until user presses enter to send data
 	data = f'{sync1} {sync2} {sync3} {drive} {turn} {digital1} {digital2}\n' # Formatted String
-	data = str.encode(data) # Encode to "bytes-like object"
-	s.send(data) # Send data
+	s.send(str.encode(data)) # Send data
+	print (data)

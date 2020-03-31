@@ -8,7 +8,6 @@ IPAddress subnet(255, 255, 0, 0);
 int port = 8888;
 
 EthernetServer server(port);
-boolean alreadyConnected = false; // whether or not the client was connected previously
 EthernetClient client;
 
 void setup() {
@@ -18,9 +17,8 @@ void setup() {
 }
 
 void loop() {
-  // wait for a new client:
   client = server.available();
-  if (client.available() > 0) {
+  if (client.available()) {
     char thisChar = client.read();
     Serial.print(thisChar);
   }
