@@ -1,51 +1,27 @@
 #include <SPI.h>
-#include <Ethernet2.h>
+#include <Ethernet.h>
+byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+IPAddress ip(192, 168, 1, 177);
+IPAddress myDns(192, 168, 1, 1);
+IPAddress gateway(192, 168, 1, 1);
+IPAddress subnet(255, 255, 0, 0);
+int port = 8888;
 
-byte mac[] = { 0x90, 0xA2, 0xDA, 0x00, 0xC0, 0xF3 };
-byte ip[] = {192, 168, 1, 57};
-byte server[] = { 192, 168, 1, 1 };
-int port = 8090;
-
+EthernetServer server(port);
+boolean alreadyConnected = false; // whether or not the client was connected previously
 EthernetClient client;
 
 void setup() {
-  while (1) {
-    Ethernet.begin(mac, ip);
-    Serial.begin(9600);
-    delay(1000);
-    //  Serial.println("connecting...");
-    Serial.println("Attempting...");
-
-    // if you get a connection, report back via serial:
-    if (client.connect(server, port)) {
-      Serial.println("connected.");
-      //print text to the server
-      client.println("This is a request from the client.");
-      break;
-    }
-    else {
-      // if you didn't get a connection to the server:
-      Serial.println("connection failed");
-    }
-  }
+  Ethernet.begin(mac, ip, myDns, gateway, subnet);
+  Serial.begin(9600);
+  server.begin();
 }
 
-void loop()
-{
-  // if there are incoming bytes available
-  // from the server, read them and print them:
-  if (client.available()) {
-    char c = client.read();
-    Serial.print(c);
-  }
-
-  // if the server's disconnected, stop the client:
-  if (!client.connected()) {
-    Serial.println();
-    Serial.println("disconnecting.");
-    client.stop();
-
-    // do nothing forevermore:
-    while (true);
+void loop() {
+  // wait for a new client:
+  client = server.available();
+  if (client.available() > 0) {
+    char thisChar = client.read();
+    Serial.print(thisChar);
   }
 }

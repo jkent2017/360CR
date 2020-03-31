@@ -1,1 +1,1 @@
-Second attempt with sockets (Arduino-Python).
+Sockets (Arduino-Python).
