@@ -19,6 +19,7 @@ drive = 0
 turn = 0
 digital1 = 1
 digital2 = 5
+print("Ready")
 
 while(1) :
 	msg = input() # Wait until user presses enter to send data
