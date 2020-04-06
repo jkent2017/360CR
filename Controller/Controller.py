@@ -16,8 +16,8 @@ deadzone = 0.04
 sync1 = 1
 sync2 = 2
 sync3 = 3
-driveChar = 0
-turnChar = 0
+drive = 0
+turn = 0
 digital1 = 1
 digital2 = 5
 maxSpeed = 5.0
@@ -91,18 +91,18 @@ def checkButtons():
         print("Y")
 
 def readJoysticks():
-  global turnChar, driveChar
-  turnChar = joysticks[-1].get_axis(0)
-  driveChar = joysticks[-1].get_axis(1)
-  if (driveChar < deadzone) & (driveChar > -1*deadzone):
-    driveChar = 0;
+  global turn, drive
+  turn = joysticks[-1].get_axis(0)
+  drive = joysticks[-1].get_axis(1)
+  if (drive < deadzone) & (drive > -1*deadzone):
+    drive = 0;
   else:
-    driveChar = int(-127 * maxSpeed/5.0 * driveChar)
+    drive = int(-127 * maxSpeed/5.0 * drive)
 
-  if (turnChar < deadzone) & (turnChar > -1*deadzone):
-    turnChar = 0;
+  if (turn < deadzone) & (turn > -1*deadzone):
+    turn = 0;
   else:
-    turnChar = int(127 * maxSpeed/5.0 * turnChar)
+    turn = int(127 * maxSpeed/5.0 * turn)
 
 def readFile():
   global pathFile, path, sleepTimer
