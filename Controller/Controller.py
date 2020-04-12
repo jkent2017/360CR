@@ -7,8 +7,6 @@ port = 8888
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host,port))
-
-
 pygame.init()
 
 gameExit = False
@@ -28,7 +26,6 @@ pathFile = open("Path.txt")
 pathFile.close()
 reversePathFile = open("Reverse.txt")
 reversePathFile.close()
-
 
 for i in range(0, pygame.joystick.get_count()):
   joysticks.append(pygame.joystick.Joystick(i))
@@ -128,21 +125,16 @@ def reverseReverse():
   reversePathFile.close()
   print("Done Reading")
 
-
-while not gameExit:
-  
+while not gameExit:  
   readJoysticks()
   checkButtons()
-
   data = f'{sync1} {sync2} {sync3} {drive} {turn} {digital1} {digital2}\n' # Formatted String
   s.send(str.encode(data))
   print(data)
   print("Max Speed: " + str(maxSpeed) + "\n")
-
   if writing:
     pathFile.write(data)
     reversePathFile.write(data)
-
   time.sleep(sleepTimer)
 pathFile.close()
 reversePathFile.close()
