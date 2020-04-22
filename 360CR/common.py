@@ -8,8 +8,21 @@ blue = (94,115,219)
 red = (240,32,60)
 yellow = (250,208,32)
 
-width = 800
-height = 600
+color_bg_light = (238,238,238)
+color_bg_main = (235,234,219)
+color_bg_mid_dark = (214,210,194)
+color_bg_dark = (199,197,178)
+
+color_accent_blue = (127,157,185)
+color_accent_navy = (0,60,116)
+color_accent_yellow = (255,199,60)
+color_accent_gold = (230,139,44)
+
+color_text_light = (238,238,238)
+color_text_dark = (12,12,12)
+
+width = 126 + 126 + 148
+height = 100
 
 spacing_lg = 6
 spacing_sm = 4
@@ -21,28 +34,6 @@ font_14 = None
 font_12 = None
 font_mono = None
 screen = None
-
-panel_message_width = width
-panel_message_height = 100
-panel_message_x = 0
-panel_message_y = height - panel_message_height
-panel_message_label = 'Application Log'
-
-panel_camera_width = height - panel_message_height - 30
-panel_camera_height = height - panel_message_height - 30
-panel_camera_x = width - panel_camera_width
-panel_camera_y = 15
-panel_camera_label = 'Camera'
-
-panel_control_width = width - panel_camera_width
-panel_control_height = height - panel_message_height - 30
-panel_control_x = 0
-panel_control_y = 15
-panel_control_label = 'Settings'
-
-panel_mapping_width = 200
-panel_mapping_height = 150
-panel_mapping_label = 'Mapping'
 
 # PS DUALSHOCK 4 MAPPING
 BUTTON_A  =  0

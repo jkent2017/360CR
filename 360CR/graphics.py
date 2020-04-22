@@ -11,13 +11,12 @@ class Transform():
     self.parent = parent
     self.children = []
 
+    self.default_colors = (common.color_bg_light, common.color_bg_dark, common.color_text_dark)
+    self.colors = self.default_colors
+    self.disabled_colors = (common.color_bg_mid_dark, common.color_bg_dark, common.color_bg_dark)
+
     self.enabled = True
     self.depth = 0
-
-    self.default_colors = (common.dark_gray, common.white)
-    self.disabled_colors = (common.black, common.gray)
-
-    self.colors = self.default_colors
 
     if parent:
       parent.children.append(self)
@@ -72,9 +71,7 @@ class Clickable():
     print('on_click unimplemented')
 
 class Hoverable():
-  def __init__(self):
-    self.is_hovered = False
-    self.hover_colors = (common.dark_gray, common.blue)
+  is_hovered = False
 
   def mouse_enter(self):
     if not self.is_hovered:
@@ -98,12 +95,13 @@ class Button(Transform, Clickable, Hoverable):
   def __init__(self, x, y, width, height, label, parent=None, font=common.font_18, action=None):
     width = max(width, font.size(label)[0] + 8)
     height = max(height, font.size(label)[1] + 2)
-    Transform.__init__(self, pygame.Rect(x, y, width, height), parent)
-    Hoverable.__init__(self)
 
-    self.hover_colors = (common.blue, common.dark_gray)
-    self.default_colors = (common.dark_gray, common.blue)
+    super().__init__(pygame.Rect(x, y, width, height), parent)
+
+    self.default_colors = ((243, 243, 239), common.color_accent_blue, common.color_text_dark)
+    self.highlight_colors = ((216, 230, 242), common.color_accent_blue, common.color_text_dark)
     self.colors = self.default_colors
+    self.disabled_colors = ((243, 243, 239), common.color_accent_blue, common.color_bg_dark)
 
     self.label = label
     self.font = font
@@ -111,9 +109,11 @@ class Button(Transform, Clickable, Hoverable):
 
   def draw(self):
     s = self.font.size(self.label)
+    
     pygame.draw.rect(common.screen, self.colors[0], self.get_bounds())
     pygame.draw.rect(common.screen, self.colors[1], self.get_bounds(), 1)
-    write(self.label, self.get_bounds().x + self.get_bounds().width // 2 - s[0] // 2, self.get_bounds().y + self.get_bounds().height // 2 - s[1] // 2, self.colors[1], self.colors[0], self.font)
+
+    write(self.label, self.get_bounds().x + self.get_bounds().width // 2 - s[0] // 2, self.get_bounds().y + self.get_bounds().height // 2 - s[1] // 2, self.colors[2], self.colors[0], self.font)
 
     Transform.draw(self)
 
@@ -124,17 +124,14 @@ class Button(Transform, Clickable, Hoverable):
       print(f'Click unimplemented on {self.label}.')
 
   def on_mouse_enter(self):
-    self.colors = self.hover_colors
+    self.colors = self.highlight_colors
     self.draw()
 
   def on_mouse_exit(self):
     self.colors = self.default_colors
     self.draw()
 
-  def get_label(self):
-    return self.label
-
-class Panel(Transform, Hoverable):
+class Panel(Transform):
   def __init__(self, x, y, width, height, label, parent=None):
     Transform.__init__(self, pygame.Rect(x, y, width, height), parent)
     Hoverable.__init__(self)
@@ -143,20 +140,19 @@ class Panel(Transform, Hoverable):
     self.font = common.font_18
 
   def draw(self):
-    s = self.font.size(self.label)
-    pygame.draw.rect(common.screen, self.colors[0], self.bounds)
-    pygame.draw.rect(common.screen, self.colors[1], self.bounds, common.border)
-    write(self.label, self.bounds.x, self.bounds.y - s[1], self.colors[1], common.black, self.font)
-    
+    if self.get_bounds().y > 0:
+      pygame.draw.line(common.screen, self.colors[0], (self.get_bounds().x, self.get_bounds().y + 1), (self.get_bounds().x + self.get_bounds().width, self.get_bounds().y + 1), 1)
+
+    pygame.draw.line(common.screen, self.colors[1], (self.get_bounds().x, self.get_bounds().y + self.get_bounds().height), (self.get_bounds().x + self.get_bounds().width, self.get_bounds().y + self.get_bounds().height), 1)
+
     Transform.draw(self)
 
-  def on_mouse_enter(self):
-    self.colors = self.hover_colors
-    self.draw()
+class Typeable():
+  text = ''
 
-  def on_mouse_exit(self):
-    self.colors = self.default_colors
-    self.draw()
+  def add_char(self, char):
+    self.text += char
 
-  def get_label(self):
-    return self.label
+  def del_char(self):
+    if len(self.text) > 0:
+      self.text = self.text[:-1]
