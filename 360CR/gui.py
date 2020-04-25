@@ -515,7 +515,7 @@ class GUI():
 
     pygame.font.init()
     common.screen = pygame.display.set_mode((common.width, common.height))
-    pygame.display.set_caption('FlexCSR User Application')
+    pygame.display.set_caption('360CR Interface')
     common.font_18 = pygame.font.Font('fonts/karla.ttf', 18)
     common.font_16 = pygame.font.Font('fonts/karla.ttf', 16)
     common.font_14 = pygame.font.Font('fonts/karla.ttf', 14)
