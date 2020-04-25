@@ -140,6 +140,7 @@ def process_button_up(button):
 def Log(message):
   if _message_bar:
     _message_bar.add_message(message)
+    pygame.display.update()
   print(message)
 
 class _PairingTablePanel(Panel):
@@ -248,7 +249,7 @@ class _MessageBar(Panel):
 
 class _ControlPanel(Panel):
   def __init__(self):
-    super().__init__(0, 0, common.width, 75, '')
+    super().__init__(0, 0, common.width, 97, '')
 
 class PanelButton(Button):
   def __init__(self, x, y, width, height, label, parent=None, font=common.font_18, action=None):
@@ -432,16 +433,18 @@ class RadioButtons(Transform):
       self.on_select(self._values[self.selected])
 
 class PathControls(Transform):
-  def __init__(self, parent, cb_record, cb_stop, cb_follow):
+  def __init__(self, parent, cb_record, cb_stop, cb_follow, cb_home):
     super().__init__(pygame.Rect(common.width - 148 - 126, 0, 126, parent.get_bounds().height - 10), parent)
 
     self.record_button = Button(8,  5, 110, 20, 'start recording', self, common.font_14, cb_record)
     self.stop_button   = Button(8, 27, 110, 20, 'stop recording', self, common.font_14, cb_stop)
     self.follow_button = Button(8, 49, 110, 20, 'follow path', self, common.font_14, cb_follow)
+    self.home_button   = Button(8, 71, 110, 20, 'return home', self, common.font_14, cb_home)
 
     self.record_button.set_enabled(True)
     self.stop_button.set_enabled(False)
     self.follow_button.set_enabled(False)
+    self.home_button.set_enabled(False)
 
   def draw(self):
     x = self.get_pos()[0]
@@ -450,12 +453,13 @@ class PathControls(Transform):
     Transform.draw(self)
 
 class OptionsPanel(Transform):
-  def __init__(self, parent, cb_video, cb_controller, cb_connect):
+  def __init__(self, parent, cb_video, cb_controller, cb_connect, cb_stop):
     super().__init__(pygame.Rect(common.width - 148, 0, 148, parent.get_bounds().height - 10), parent)
 
     Button(8,  5, 132, 20, 'open video stream', self, common.font_14, cb_video)
     Button(8, 27, 132, 20, 'connect controller', self, common.font_14, cb_controller)
     Button(8, 49, 132, 20, 'connect to robot', self, common.font_14, cb_connect)
+    Button(8, 71, 132, 20, 'emergency stop', self, common.font_14, cb_stop)
 
   def draw(self):
     x = self.get_pos()[0]
@@ -504,6 +508,7 @@ class GUI():
   last_LS_pos = [-2, -2]  
   last_RS_pos = [-2, -2]
   max_speed = 0
+  e_stop = 0
 
   def __init__(self):
     global _message_bar, comms
@@ -526,18 +531,23 @@ class GUI():
     comms = communication.Comms()
 
     control_panel = _ControlPanel()
-    OptionsPanel(control_panel, self.open_stream, self.connect_controller, self.establish_connection)
+    OptionsPanel(control_panel, self.open_stream, self.connect_controller, self.establish_connection, self.stop)
     SpeedControls(control_panel, self.change_max_speed)
-    self.path_controls = PathControls(control_panel, self.path_record, self.path_stop, self.path_follow)
+    self.path_controls = PathControls(control_panel, self.path_record, self.path_stop, self.path_follow, self.path_home)
 
     _add_object(control_panel)
 
     pygame.display.update()
 
+  def stop(self):
+    self.e_stop = 1 if self.e_stop == 0 else 0
+    Log(f'emergency stop ' + ('on' if self.e_stop == 1 else 'off'))
+
   def open_stream(self):
     if self.video_open:
       Log('stream already open')
     else:
+      Log('starting video stream... may take up to 2 minutes')
       Thread(target=self.thread_function, daemon=True).start()
 
   def thread_function(self):
@@ -547,7 +557,7 @@ class GUI():
       Log('Error opening video')
     else:
       self.video_open = True
-      #self.start_stream.set_enabled(False)
+      self.start_stream.set_enabled(False)
 
     while (cap.isOpened()):
       ret, frame = cap.read()
@@ -563,7 +573,7 @@ class GUI():
     cap.release()
     cv2.destroyAllWindows()
     self.video_open = False
-    #self.start_stream.set_enabled(True)
+    self.start_stream.set_enabled(True)
 
   def connect_controller(self):
     global _controller
@@ -579,43 +589,51 @@ class GUI():
 
   def path_record(self):
     Log('Started recording path')
-    communication.writing = True
-    communication.path_file = open("Path.txt", "w")
-    communication.reverse_path_file = open("Reverse.txt", "w")
+    communication.open_path('w')
+    communication.open_path_reverse('w')
+    communication.set_writing(True)
+    communication.set_index(0)
 
     self.path_controls.record_button.set_enabled(False)
     self.path_controls.stop_button.set_enabled(True)
     self.path_controls.follow_button.set_enabled(False)
+    self.path_controls.home_button.set_enabled(False)
 
   def path_stop(self):
     global _send_mode
 
-    Log('Stopped recording path')
+    Log('Stopped')
+    communication.set_writing(False)
+    communication.close_path()
+    communication.close_path_reverse()
+    communication.set_index(0)
+
     _send_mode = 'live'
-    communication.writing = False
-    communication.path_file.close()
-    communication.reverse_path_file.close()
-    communication.index = 0
 
     self.path_controls.record_button.set_enabled(True)
     self.path_controls.stop_button.set_enabled(False)
     self.path_controls.follow_button.set_enabled(True)
+    self.path_controls.home_button.set_enabled(True)
 
   def path_follow(self):
     global _send_mode
 
-    communication.index = 0
-    communication.writing = False
-    communication.path_file = open("Path.txt", "r")
+    self.path_controls.stop_button.set_enabled(True)
+
+    communication.set_index(0)
+    communication.set_writing(False)
+    communication.open_path('r')
 
     _send_mode = 'path'
 
   def path_home(self):
     global _send_mode
 
-    communication.index = 0
-    communication.writing = False
-    communication.reverse_path_file = open("Reverse.txt", "r")
+    self.path_controls.stop_button.set_enabled(True)
+
+    communication.set_index(0)
+    communication.set_writing(False)
+    communication.open_path_reverse('r')
 
     _send_mode = 'reverse'
 
@@ -664,5 +682,5 @@ class GUI():
 
     while True:
       self.update()
-      comms.update(_send_mode, self.last_LS_pos[1], self.last_RS_pos[0], self.max_speed)
+      comms.update(_send_mode, self.last_LS_pos[1], self.last_RS_pos[0], self.max_speed, self.e_stop)
       clock.tick(120)
