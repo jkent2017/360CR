@@ -22,7 +22,7 @@ color_text_light = (238,238,238)
 color_text_dark = (12,12,12)
 
 width = 126 + 126 + 148
-height = 100
+height = 122
 
 spacing_lg = 6
 spacing_sm = 4
